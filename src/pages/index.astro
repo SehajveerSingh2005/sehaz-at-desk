@@ -1,11 +1,483 @@
 ---
-import Welcome from '../components/Welcome.astro';
-import Layout from '../layouts/Layout.astro';
+import Layout from "../layouts/Layout.astro";
+import Hotspot from "../components/Hotspot.astro";
+import Overlay from "../components/Overlay.astro";
 
-// Welcome to Astro! Wondering what to do next? Check out the Astro documentation at https://docs.astro.build
-// Don't want to use any of this? Delete everything in this file, the `assets`, `components`, and `layouts` directories, and start fresh.
+import ProjectsContent from "../components/panels/ProjectsContent.astro";
+import AboutContent from "../components/panels/AboutContent.astro";
+import ContactContent from "../components/panels/ContactContent.astro";
+import TodoContent from "../components/panels/TodoContent.astro";
 ---
 
-<Layout>
-	<Welcome />
+<Layout title="Sehaz at desk">
+	<div
+		class="relative flex-1 w-full min-h-[60vh] md:h-full overflow-hidden"
+		id="desk-container"
+	>
+		<!-- Desktop Corner UI Overlays (Editorial Brutalism) -->
+		<div
+			class="hidden md:block fixed inset-0 pointer-events-none z-30 p-10 text-primary opacity-0 animate-[fadeIn_1s_ease-out_forwards] animation-delay-500"
+		>
+			<!-- Bottom Area Wrapper -->
+			<div
+				class="absolute bottom-10 left-10 right-10 flex justify-between items-end pointer-events-auto"
+			>
+				<!-- Bottom Left: Info -->
+				<div class="space-y-4">
+					<div class="flex flex-col gap-1.5">
+						<div
+							class="flex items-center gap-3 text-[12px] font-medium tracking-widest uppercase opacity-80"
+						>
+							<span
+								class="w-1.5 h-1.5 rounded-full bg-accent animate-pulse"
+							></span>
+							<p>Interactive Portfolio</p>
+						</div>
+						<p
+							class="text-[12px] font-normal tracking-wide opacity-60 ml-4"
+						>
+							Explore the desk. Objects are interactive.
+						</p>
+					</div>
+					<div class="text-[12px] font-medium opacity-40 ml-4 pt-2">
+						<p>
+							&copy; {new Date().getFullYear()} Sehaz. All rights reserved.
+						</p>
+					</div>
+				</div>
+
+				<!-- Bottom Right: Name Plate -->
+				<div
+					class="text-right flex flex-col items-end group cursor-crosshair drop-shadow-sm pointer-events-auto"
+				>
+					<h1
+						class="font-serif relative text-[64px] sm:text-[90px] font-normal leading-[1.1] tracking-normal grid justify-items-end items-end h-[75px] sm:h-[105px] overflow-hidden text-[#1C1917]"
+					>
+						<span
+							class="col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full opacity-100 group-hover:opacity-0"
+							>Sehaz</span
+						>
+						<span
+							class="col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-full group-hover:translate-y-0 text-[#8B0000] whitespace-nowrap opacity-0 group-hover:opacity-100"
+							>Sehajveer Singh</span
+						>
+					</h1>
+					<p
+						class="text-[12px] uppercase tracking-[0.3em] font-medium mt-4 border border-stone-200 text-secondary px-4 py-2 rounded-full"
+					>
+						Full-Stack Developer
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<!-- Hotspots & Desk Image Parent container -->
+		<!-- We bind the zoom scale to this div, so both the image AND the hotspots scale together flawlessly -->
+		<div
+			id="desk-background"
+			class="hidden md:block fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-0 animate-[fadeInOpacity_1.5s_ease-out_forwards] transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+			style="background-image: url('/desk.png');"
+		>
+			<div class="w-full h-full relative">
+				<!-- Laptop -> Projects -->
+				<Hotspot
+					id="hotspot-laptop"
+					targetPanel="panel-projects"
+					top="33%"
+					left="38%"
+					width="24%"
+					height="24%"
+				/>
+
+				<!-- Notebook -> About -->
+				<Hotspot
+					id="hotspot-notebook"
+					targetPanel="panel-about"
+					top="48%"
+					left="9%"
+					width="23%"
+					height="3.5%"
+				/>
+				<!-- Phone -> Contact -->
+				<Hotspot
+					id="hotspot-phone"
+					targetPanel="panel-contact"
+					top="65%"
+					left="25%"
+					width="8%"
+					height="20%"
+					indicatorColor="bg-white"
+				/>
+
+				<!-- Todo Note -> Working On -->
+				<Hotspot
+					id="hotspot-todo"
+					targetPanel="panel-todo"
+					top="35%"
+					left="64%"
+					width="6%"
+					height="11%"
+				/>
+
+				<!-- Keyboard -> Easter Egg -->
+				<Hotspot
+					id="hotspot-keyboard"
+					targetPanel="panel-fun-keyboard"
+					top="67%"
+					left="37%"
+					width="25%"
+					height="15%"
+				/>
+
+				<!-- Mouse -> Easter Egg -->
+				<Hotspot
+					id="hotspot-mouse"
+					targetPanel="panel-fun-mouse"
+					top="67%"
+					left="67%"
+					width="5%"
+					height="14%"
+				/>
+
+				<!-- Headphones -> Easter Egg -->
+				<Hotspot
+					id="hotspot-headphones"
+					targetPanel="panel-fun-headphones"
+					top="17%"
+					left="75%"
+					width="15%"
+					height="27%"
+				/>
+
+				<!-- Coffee Mug -> Easter Egg -->
+				<Hotspot
+					id="hotspot-mug"
+					targetPanel="panel-fun-mug"
+					top="57%"
+					left="76%"
+					width="7%"
+					height="13%"
+				/>
+			</div>
+		</div>
+
+		<!-- Mobile Fallback Content (shows static lists instead of overlay map) -->
+		<div class="md:hidden p-8 space-y-12 pb-24">
+			<div id="mobile-projects" class="space-y-6">
+				<h2
+					class="text-[24px] font-serif font-medium tracking-tight border-b border-black/10 pb-4"
+				>
+					Selected Work
+				</h2>
+				<div class="space-y-6">
+					<div class="group border-b border-black/10 pb-6">
+						<div class="flex items-baseline justify-between mb-2">
+							<h3 class="font-serif text-[18px] font-medium">
+								The Framed Archive
+							</h3>
+							<a
+								href="https://theframedarchive.com"
+								class="text-[13px] text-secondary"
+								>View &rarr;</a
+							>
+						</div>
+						<p class="text-[16px] text-secondary mb-3">
+							A full-scale e-commerce platform for posters. Built
+							with a responsive, premium UI/UX.
+						</p>
+						<div
+							class="flex gap-2 text-[12px] text-secondary font-medium"
+						>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>Next.js</span
+							>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>Firebase</span
+							>
+						</div>
+					</div>
+
+					<div class="group border-b border-black/10 pb-6">
+						<div class="flex items-baseline justify-between mb-2">
+							<h3 class="font-serif text-[18px] font-medium">
+								Folia
+							</h3>
+							<a
+								href="https://folia-os.vercel.app"
+								class="text-[13px] text-secondary"
+								>View &rarr;</a
+							>
+						</div>
+						<p class="text-[16px] text-secondary mb-3">
+							A "second brain" personal productivity app designed
+							for seamless knowledge organization.
+						</p>
+						<div
+							class="flex gap-2 text-[12px] text-secondary font-medium"
+						>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>Next.js</span
+							>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>Supabase</span
+							>
+						</div>
+					</div>
+
+					<div class="group border-b border-black/10 pb-6">
+						<div class="flex items-baseline justify-between mb-2">
+							<h3 class="font-serif text-[18px] font-medium">
+								The Open Shelf
+							</h3>
+							<a
+								href="https://the-open-shelf.vercel.app"
+								class="text-[13px] text-secondary"
+								>View &rarr;</a
+							>
+						</div>
+						<p class="text-[16px] text-secondary mb-3">
+							A non-linear reading platform that replaces
+							traditional RSS feeds with an infinite spatial
+							canvas.
+						</p>
+						<div
+							class="flex gap-2 text-[12px] text-secondary font-medium"
+						>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>React</span
+							>
+							<span class="px-2 py-1 bg-black/5 rounded"
+								>Spatial API</span
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div id="mobile-about" class="space-y-6">
+				<h2
+					class="text-[24px] font-serif font-medium tracking-tight border-b border-black/10 pb-4"
+				>
+					About Me
+				</h2>
+				<p class="text-[16px] text-secondary leading-relaxed">
+					Hi, I'm Sehajveer Singh, a full-stack developer passionate
+					about building high-performance, beautiful software. I am
+					currently pursuing my Bachelor of Engineering in Computer
+					Science at Chitkara University (Expected 2027).
+				</p>
+			</div>
+
+			<div id="mobile-contact" class="space-y-6">
+				<h2
+					class="text-[24px] font-serif font-medium tracking-tight border-b border-black/10 pb-4"
+				>
+					Contact
+				</h2>
+				<ul class="space-y-4">
+					<li>
+						<a
+							href="mailto:sehajveersingh2005@gmail.com"
+							class="text-[16px] font-medium hover:text-accent flex items-center gap-3"
+							><span class="w-1.5 h-1.5 rounded-full bg-accent"
+							></span> sehajveersingh2005@gmail.com</a
+						>
+					</li>
+					<li>
+						<a
+							href="https://github.com/SehajveerSingh2005"
+							target="_blank"
+							class="text-[16px] font-medium hover:text-accent flex items-center gap-3"
+							><span class="w-1.5 h-1.5 rounded-full bg-accent"
+							></span> GitHub</a
+						>
+					</li>
+					<li>
+						<a
+							href="#"
+							target="_blank"
+							class="text-[16px] font-medium hover:text-accent flex items-center gap-3"
+							><span class="w-1.5 h-1.5 rounded-full bg-accent"
+							></span> LinkedIn</a
+						>
+					</li>
+					<li>
+						<span
+							class="text-[16px] font-medium flex items-center gap-3 text-secondary"
+							><span class="w-1.5 h-1.5 rounded-full bg-accent"
+							></span> +91 8360138347</span
+						>
+					</li>
+				</ul>
+			</div>
+			<div id="mobile-workingon" class="space-y-6">
+				<h2
+					class="text-[24px] font-serif font-medium tracking-tight border-b border-black/10 pb-4"
+				>
+					Currently Working On
+				</h2>
+				<p class="text-[16px] text-secondary leading-relaxed">
+					Exploring spatial interfaces, WebGL depth, and brutalist
+					performance optimizations.
+				</p>
+			</div>
+		</div>
+	</div>
+
+	<!-- Overlays (Hidden on mobile via CSS or handled by JS) -->
+	<div class="hidden md:block">
+		<!-- Projects / Laptop -->
+		<Overlay id="panel-projects">
+			<ProjectsContent />
+		</Overlay>
+
+		<!-- About / Notebook -->
+		<Overlay id="panel-about">
+			<AboutContent />
+		</Overlay>
+
+		<!-- Contact / Phone -->
+		<Overlay id="panel-contact">
+			<ContactContent />
+		</Overlay>
+
+		<!-- Working On / Todo -->
+		<Overlay id="panel-todo">
+			<TodoContent />
+		</Overlay>
+
+		<!-- Easter Eggs -->
+		<Overlay id="panel-fun-keyboard">
+			<div class="text-center space-y-4 py-8 max-w-xs mx-auto">
+				<div class="text-[48px] mb-6 grayscale opacity-80">⌨️</div>
+				<h2 class="text-[20px] font-semibold tracking-tight">
+					Clack Clack Clack
+				</h2>
+				<p class="text-[15px] text-secondary">
+					A developer's favorite sound. Stay tuned for an interactive
+					typing game.
+				</p>
+			</div>
+		</Overlay>
+
+		<Overlay id="panel-fun-mouse">
+			<div class="text-center space-y-4 py-8 max-w-xs mx-auto">
+				<div class="text-[48px] mb-6 grayscale opacity-80">🖱️</div>
+				<h2 class="text-[20px] font-semibold tracking-tight">
+					Precise Tracking
+				</h2>
+				<p class="text-[15px] text-secondary">
+					The unsung hero of desktop navigation.
+				</p>
+			</div>
+		</Overlay>
+
+		<Overlay id="panel-fun-headphones">
+			<div class="text-center space-y-4 py-8 max-w-xs mx-auto">
+				<div class="text-[48px] mb-6 grayscale opacity-80">🎧</div>
+				<h2 class="text-[20px] font-semibold tracking-tight">
+					Focus Mode
+				</h2>
+				<p class="text-[15px] text-secondary">
+					Lofi beats to study and relax to. Playlist integration
+					coming soon.
+				</p>
+			</div>
+		</Overlay>
+
+		<Overlay id="panel-fun-mug">
+			<div class="text-center space-y-4 py-8 max-w-xs mx-auto">
+				<div class="text-[48px] mb-6 grayscale opacity-80">☕</div>
+				<h2 class="text-[20px] font-semibold tracking-tight">
+					Fancy a coffee?
+				</h2>
+				<p class="text-[15px] text-secondary">
+					The fuel behind the code. Let's chat.
+				</p>
+			</div>
+		</Overlay>
+	</div>
+
+	<script>
+		// Centralized overlay and interaction management
+		document.addEventListener("DOMContentLoaded", () => {
+			const overlays = document.querySelectorAll(".overlay-panel");
+			const closeBtns = document.querySelectorAll("[data-close-overlay]");
+			const hotspots = document.querySelectorAll(".desk-hotspot");
+			const deskBg = document.getElementById("desk-background");
+
+			let activePanelId: string | null = null;
+
+			// Function to close all overlays
+			const closeAllOverlays = () => {
+				overlays.forEach((overlay) =>
+					overlay.classList.remove("active"),
+				);
+				activePanelId = null;
+				if (deskBg) {
+					deskBg.style.transform = "";
+				}
+			};
+
+			// Function to open specific overlay
+			const openOverlay = (
+				targetId: string,
+				originX?: string,
+				originY?: string,
+			) => {
+				closeAllOverlays();
+				const panel = document.getElementById(targetId);
+				if (panel) {
+					panel.classList.add("active");
+					activePanelId = targetId;
+					if (deskBg && originX && originY) {
+						deskBg.style.transformOrigin = `${originX} ${originY}`;
+						deskBg.style.transform = "scale(1.15)";
+					}
+				}
+			};
+
+			// Attach hotspot clicks
+			hotspots.forEach((hotspot) => {
+				hotspot.addEventListener("click", (e) => {
+					const el = e.currentTarget as HTMLElement;
+					const target = el.getAttribute("data-target");
+					const left = el.style.left || "50%";
+					const top = el.style.top || "50%";
+					if (target) openOverlay(target, left, top);
+				});
+
+				hotspot.addEventListener("mouseenter", (e) => {
+					if (activePanelId || !deskBg) return;
+
+					const el = e.currentTarget as HTMLElement;
+					const left = el.style.left;
+					const top = el.style.top;
+
+					deskBg.style.transitionDuration = "1000ms";
+					deskBg.style.transformOrigin = `${left} ${top}`;
+					deskBg.style.transform = "scale(1.15)";
+				});
+
+				hotspot.addEventListener("mouseleave", () => {
+					if (!activePanelId && deskBg) {
+						deskBg.style.transitionDuration = "1200ms";
+						deskBg.style.transform = "";
+					}
+				});
+			});
+
+			// Desktop specific: we can also wire Esc and backdrop clicks
+			closeBtns.forEach((btn) => {
+				btn.addEventListener("click", closeAllOverlays);
+			});
+
+			// Escape key to close
+			document.addEventListener("keydown", (e) => {
+				if (e.key === "Escape" && activePanelId) {
+					closeAllOverlays();
+				}
+			});
+		});
+	</script>
 </Layout>
