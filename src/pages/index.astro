@@ -16,7 +16,9 @@ import TodoContent from "../components/panels/TodoContent.astro";
 	>
 		<!-- Desktop Corner UI Overlays (Editorial Brutalism) -->
 		<div
+			id="ui-overlay"
 			class="hidden md:block fixed inset-0 pointer-events-none z-30 p-10 text-primary opacity-0 animate-[fadeIn_1s_ease-out_forwards] animation-delay-500"
+			style="transition: color 2000ms cubic-bezier(0.45,0.05,0.55,0.95);"
 		>
 			<!-- Bottom Area Wrapper -->
 			<div
@@ -48,22 +50,25 @@ import TodoContent from "../components/panels/TodoContent.astro";
 
 				<!-- Bottom Right: Name Plate -->
 				<div
-					class="text-right flex flex-col items-end group cursor-crosshair drop-shadow-sm pointer-events-auto"
+					class="name-plate text-right flex flex-col items-end cursor-crosshair drop-shadow-sm pointer-events-auto"
 				>
 					<h1
+						id="name-heading"
 						class="font-serif relative text-[64px] sm:text-[90px] font-normal leading-[1.1] tracking-normal grid justify-items-end items-end h-[75px] sm:h-[105px] overflow-hidden text-[#1C1917]"
+						style="transition: color 2000ms cubic-bezier(0.45,0.05,0.55,0.95);"
 					>
-						<span
-							class="col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] group-hover:-translate-y-full opacity-100 group-hover:opacity-0"
+						<span class="name-primary col-start-1 row-start-1"
 							>Sehaz</span
 						>
 						<span
-							class="col-start-1 row-start-1 transition-all duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] translate-y-full group-hover:translate-y-0 text-[#8B0000] whitespace-nowrap opacity-0 group-hover:opacity-100"
+							class="name-secondary col-start-1 row-start-1 text-[#8B0000] whitespace-nowrap"
 							>Sehajveer Singh</span
 						>
 					</h1>
 					<p
+						id="role-badge"
 						class="text-[12px] uppercase tracking-[0.3em] font-medium mt-4 border border-stone-200 text-secondary px-4 py-2 rounded-full"
+						style="transition: border-color 2000ms cubic-bezier(0.45,0.05,0.55,0.95), color 2000ms cubic-bezier(0.45,0.05,0.55,0.95);"
 					>
 						Full-Stack Developer
 					</p>
@@ -73,11 +78,27 @@ import TodoContent from "../components/panels/TodoContent.astro";
 
 		<!-- Hotspots & Desk Image Parent container -->
 		<!-- We bind the zoom scale to this div, so both the image AND the hotspots scale together flawlessly -->
+		<!-- Day/Night layered background -->
 		<div
 			id="desk-background"
-			class="hidden md:block fixed inset-0 z-0 bg-cover bg-center bg-no-repeat opacity-0 animate-[fadeInOpacity_1.5s_ease-out_forwards] transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
-			style="background-image: url('/desk.png');"
+			class="hidden md:block fixed inset-0 z-0 opacity-0 animate-[fadeInOpacity_1.5s_ease-out_forwards] transition-all duration-[1200ms] ease-[cubic-bezier(0.16,1,0.3,1)]"
+			style="background-color: #E2D9CE; filter: brightness(1); transition: transform 1000ms cubic-bezier(0.16,1,0.3,1), transform-origin 1000ms cubic-bezier(0.16,1,0.3,1), filter 2000ms cubic-bezier(0.45,0.05,0.55,0.95);"
 		>
+			<!-- Day image (always visible base) -->
+			<div
+				id="desk-day"
+				class="absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-[2000ms] ease-[cubic-bezier(0.4,0,0.2,1)]"
+				style="background-image: url('/desk.png');"
+			>
+			</div>
+			<!-- Night image (fades in on top) -->
+			<div
+				id="desk-night"
+				class="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-0 transition-opacity duration-[2000ms] ease-[cubic-bezier(0.45,0.05,0.55,0.95)]"
+				style="background-image: url('/desk-night.png');"
+			>
+			</div>
+
 			<div class="w-full h-full relative">
 				<!-- Laptop -> Projects -->
 				<Hotspot
@@ -158,6 +179,28 @@ import TodoContent from "../components/panels/TodoContent.astro";
 					width="7%"
 					height="13%"
 				/>
+
+				<!-- Lamp -> Night Mode Toggle -->
+				<button
+					id="hotspot-lamp"
+					class="desk-hotspot absolute z-20 cursor-pointer group pointer-events-auto flex items-center justify-center opacity-0 animate-[fadeIn_1s_ease-out_forwards] animation-delay-700"
+					style="top: 2%; left: 2%; width: 16%; height: 28%;"
+					aria-label="Toggle night mode"
+					aria-pressed="false"
+				>
+					<div
+						class="relative flex items-center justify-center w-6 h-6 transition-transform duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] group-hover:scale-150"
+					>
+						<span
+							id="lamp-ring"
+							class="absolute inline-flex w-full h-full rounded-full border border-black/20 group-hover:border-black/50 transition-colors duration-500"
+						></span>
+						<span
+							id="lamp-dot"
+							class="relative inline-flex w-1.5 h-1.5 rounded-full bg-black/40 group-hover:bg-black/80 transition-colors duration-500"
+						></span>
+					</div>
+				</button>
 			</div>
 		</div>
 
@@ -408,6 +451,71 @@ import TodoContent from "../components/panels/TodoContent.astro";
 
 			let activePanelId: string | null = null;
 
+			// ---------- Night mode state ----------
+			let isNight = false;
+			const nightLayer = document.getElementById(
+				"desk-night",
+			) as HTMLElement | null;
+			const lampBtn = document.getElementById(
+				"hotspot-lamp",
+			) as HTMLElement | null;
+			const lampDot = document.getElementById(
+				"lamp-dot",
+			) as HTMLElement | null;
+			const lampRing = document.getElementById(
+				"lamp-ring",
+			) as HTMLElement | null;
+			const uiOverlay = document.getElementById(
+				"ui-overlay",
+			) as HTMLElement | null;
+			const nameEl = document.getElementById(
+				"name-heading",
+			) as HTMLElement | null;
+
+			// Apply night / day visual state
+			const applyNightState = (night: boolean) => {
+				if (!nightLayer) return;
+				nightLayer.style.opacity = night ? "1" : "0";
+
+				// Dim the whole scene in night mode — simulates ambient light dropping
+				if (deskBg) {
+					deskBg.style.filter = night
+						? "brightness(0.8)"
+						: "brightness(1)";
+				}
+
+				// UI text colours — transition defined in CSS, just swap the value
+				if (uiOverlay) {
+					uiOverlay.style.color = night ? "#e7d5b3" : "";
+				}
+				if (nameEl) {
+					nameEl.style.color = night ? "#e7d5b3" : "";
+				}
+
+				// Role badge border + text
+				const badge = document.getElementById("role-badge");
+				if (badge) {
+					badge.style.borderColor = night
+						? "rgba(231,213,179,0.25)"
+						: "";
+					badge.style.color = night ? "rgba(231,213,179,0.6)" : "";
+				}
+
+				if (lampBtn)
+					lampBtn.setAttribute("aria-pressed", String(night));
+			};
+
+			// Toggle handler
+			const toggleNight = () => {
+				isNight = !isNight;
+				applyNightState(isNight);
+			};
+
+			if (lampBtn) {
+				lampBtn.addEventListener("click", toggleNight);
+			}
+			// ---------- End night mode ----------
+
 			// Function to close all overlays
 			const closeAllOverlays = () => {
 				overlays.forEach((overlay) =>
@@ -437,8 +545,14 @@ import TodoContent from "../components/panels/TodoContent.astro";
 				}
 			};
 
-			// Attach hotspot clicks
+			// Glide between hotspots: debounce the zoom-out so moving from one
+			// hotspot to another just shifts the origin instead of zoom out → zoom in
+			let leaveTimeout: ReturnType<typeof setTimeout> | null = null;
+
+			// Attach hotspot clicks (exclude lamp which handles its own logic)
 			hotspots.forEach((hotspot) => {
+				if (hotspot.id === "hotspot-lamp") return;
+
 				hotspot.addEventListener("click", (e) => {
 					const el = e.currentTarget as HTMLElement;
 					const target = el.getAttribute("data-target");
@@ -450,19 +564,25 @@ import TodoContent from "../components/panels/TodoContent.astro";
 				hotspot.addEventListener("mouseenter", (e) => {
 					if (activePanelId || !deskBg) return;
 
-					const el = e.currentTarget as HTMLElement;
-					const left = el.style.left;
-					const top = el.style.top;
+					// Cancel any pending zoom-out — just glide the origin
+					if (leaveTimeout) {
+						clearTimeout(leaveTimeout);
+						leaveTimeout = null;
+					}
 
-					deskBg.style.transitionDuration = "1000ms";
-					deskBg.style.transformOrigin = `${left} ${top}`;
+					const el = e.currentTarget as HTMLElement;
+					deskBg.style.transformOrigin = `${el.style.left} ${el.style.top}`;
 					deskBg.style.transform = "scale(1.15)";
 				});
 
 				hotspot.addEventListener("mouseleave", () => {
 					if (!activePanelId && deskBg) {
-						deskBg.style.transitionDuration = "1200ms";
-						deskBg.style.transform = "";
+						leaveTimeout = setTimeout(() => {
+							if (!activePanelId && deskBg) {
+								deskBg.style.transform = "";
+							}
+							leaveTimeout = null;
+						}, 80);
 					}
 				});
 			});
@@ -480,4 +600,31 @@ import TodoContent from "../components/panels/TodoContent.astro";
 			});
 		});
 	</script>
+
+	<style>
+		/* Name plate slide animation — plain CSS, no Tailwind group-hover needed */
+		.name-primary {
+			transform: translateY(0);
+			opacity: 1;
+			transition:
+				transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+				opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.name-plate:hover .name-primary {
+			transform: translateY(-100%);
+			opacity: 0;
+		}
+
+		.name-secondary {
+			transform: translateY(100%);
+			opacity: 0;
+			transition:
+				transform 700ms cubic-bezier(0.16, 1, 0.3, 1),
+				opacity 700ms cubic-bezier(0.16, 1, 0.3, 1);
+		}
+		.name-plate:hover .name-secondary {
+			transform: translateY(0);
+			opacity: 1;
+		}
+	</style>
 </Layout>
