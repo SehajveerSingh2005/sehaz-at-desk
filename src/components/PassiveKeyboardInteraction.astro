@@ -33,24 +33,53 @@
         const SPACE_SND = `${BASE}/space.wav`;
         const BACKSPACE_SND = `${BASE}/backspace.wav`;
         const ENTER_SND = `${BASE}/enter.wav`;
+        const ESCAPE_SND = `${BASE}/backspace.wav`; // Reusing backspace sound since we don't have a dedicated escape sound
 
-        let audioCtx: AudioContext | null = null;
+        // Use a single, shared AudioContext
+        // Note: Browsers require a user gesture to *resume* the context, but we can create it
+        // and decode buffers into it immediately in the background.
+        const audioCtx = new (
+            window.AudioContext || (window as any).webkitAudioContext
+        )();
         const bufferCache = new Map<string, AudioBuffer>();
         let fallbackIdx = 0;
 
+        // Preload all sounds immediately
+        const allSoundUrls = [
+            SPACE_SND,
+            BACKSPACE_SND,
+            ENTER_SND,
+            ESCAPE_SND,
+            ...Object.values(LETTER_SOUNDS),
+            ...FALLBACK_POOL,
+        ];
+
+        // Deduplicate URLs before fetching
+        const uniqueUrls = [...new Set(allSoundUrls)];
+
+        uniqueUrls.forEach(async (url) => {
+            try {
+                const res = await fetch(url);
+                const arr = await res.arrayBuffer();
+                const buf = await audioCtx.decodeAudioData(arr);
+                bufferCache.set(url, buf);
+            } catch (e) {
+                console.warn("Failed to preload audio:", url, e);
+            }
+        });
+
         async function getCtx(): Promise<AudioContext> {
-            if (!audioCtx) audioCtx = new AudioContext();
             if (audioCtx.state === "suspended") await audioCtx.resume();
             return audioCtx;
         }
 
-        async function loadBuffer(url: string): Promise<AudioBuffer | null> {
+        async function getBuffer(url: string): Promise<AudioBuffer | null> {
             if (bufferCache.has(url)) return bufferCache.get(url)!;
+            // Fallback load if it wasn't preloaded
             try {
-                const ctx = await getCtx();
                 const res = await fetch(url);
                 const arr = await res.arrayBuffer();
-                const buf = await ctx.decodeAudioData(arr);
+                const buf = await audioCtx.decodeAudioData(arr);
                 bufferCache.set(url, buf);
                 return buf;
             } catch {
@@ -64,6 +93,7 @@
             if (key === " ") url = SPACE_SND;
             else if (key === "Backspace") url = BACKSPACE_SND;
             else if (key === "Enter") url = ENTER_SND;
+            else if (key === "Escape") url = ESCAPE_SND;
             else {
                 const lower = key.toLowerCase();
                 url =
@@ -71,7 +101,7 @@
                     FALLBACK_POOL[fallbackIdx++ % FALLBACK_POOL.length];
             }
 
-            loadBuffer(url).then((buf) => {
+            getBuffer(url).then((buf) => {
                 if (!buf) return;
                 getCtx().then((ctx) => {
                     const src = ctx.createBufferSource();
@@ -89,7 +119,7 @@
         // Map layout based on 25% width, 15% height bounds of keyboard.
         // 65% keyboard roughly: 16 cols (6.25% each), 5 rows (20% each)
         const KMAP: Record<string, { r: number; c: number; w: number }> = {
-            "`": { r: 0, c: 0, w: 1 },
+            escape: { r: 0.2, c: 0.5, w: 1 },
             "1": { r: 0, c: 1, w: 1 },
             "2": { r: 0, c: 2, w: 1 },
             "3": { r: 0, c: 3, w: 1 },
@@ -102,8 +132,8 @@
             "0": { r: 0, c: 10, w: 1 },
             "-": { r: 0, c: 11, w: 1 },
             "=": { r: 0, c: 12, w: 1 },
-            backspace: { r: 0, c: 13, w: 2 },
-            tab: { r: 1, c: 0, w: 1.5 },
+            backspace: { r: 0.2, c: 13.5, w: 2.25 },
+            tab: { r: 1, c: 0.5, w: 1.5 },
             q: { r: 1, c: 2, w: 1 },
             w: { r: 1, c: 3, w: 1 },
             e: { r: 1, c: 3.75, w: 1 },
@@ -116,7 +146,7 @@
             p: { r: 1, c: 10.5, w: 1 },
             "[": { r: 1, c: 11.5, w: 1 },
             "]": { r: 1, c: 12.5, w: 1 },
-            "\\": { r: 1, c: 13.5, w: 1.5 },
+            "\\": { r: 1, c: 14.05, w: 1.5 },
             capslock: { r: 2, c: 0.5, w: 1.75 },
             a: { r: 2, c: 2.1, w: 1 },
             s: { r: 2, c: 3, w: 1 },
@@ -129,18 +159,18 @@
             l: { r: 2, c: 9.75, w: 1 },
             ";": { r: 2, c: 10.75, w: 1 },
             "'": { r: 2, c: 11.75, w: 1 },
-            enter: { r: 2, c: 12.75, w: 2.25 },
-            shift: { r: 2.8, c: 0.5, w: 2.25 },
-            z: { r: 3, c: 2.5, w: 1 },
-            x: { r: 3, c: 3.5, w: 1 },
-            c: { r: 3, c: 4.5, w: 1 },
-            v: { r: 3, c: 5.5, w: 1 },
-            b: { r: 3, c: 6.5, w: 1 },
-            n: { r: 3, c: 7.5, w: 1 },
-            m: { r: 3, c: 8.25, w: 1 },
-            ",": { r: 3, c: 9.25, w: 1 },
-            ".": { r: 3, c: 10.25, w: 1 },
-            "/": { r: 3, c: 11.25, w: 1 },
+            enter: { r: 2, c: 13.3, w: 2.4 },
+            shift: { r: 2.85, c: 0.5, w: 2.25 },
+            z: { r: 2.85, c: 2.6, w: 1 },
+            x: { r: 2.85, c: 3.6, w: 1 },
+            c: { r: 2.85, c: 4.5, w: 1 },
+            v: { r: 2.85, c: 5.4, w: 1 },
+            b: { r: 2.85, c: 6.25, w: 1 },
+            n: { r: 2.85, c: 7.15, w: 1 },
+            m: { r: 2.85, c: 8.15, w: 1 },
+            ",": { r: 2.85, c: 10.15, w: 1 },
+            ".": { r: 2.85, c: 11, w: 1 },
+            "/": { r: 2.85, c: 12, w: 1 },
             arrowup: { r: 3, c: 14.15, w: 1 },
             control: { r: 3.75, c: 0.5, w: 1.25 },
             meta: { r: 4, c: 1.25, w: 1.25 },
