@@ -18,7 +18,7 @@ import TodoContent from "../components/panels/TodoContent.astro";
 		<div
 			id="ui-overlay"
 			class="hidden md:block fixed inset-0 pointer-events-none z-30 p-10 text-primary opacity-0 animate-[fadeIn_1s_ease-out_forwards] animation-delay-500"
-			style="transition: color 2000ms cubic-bezier(0.45,0.05,0.55,0.95), opacity 1600ms ease;"
+			style="transition: color 2000ms cubic-bezier(0.45,0.05,0.55,0.95), opacity 1800ms ease;"
 		>
 			<!-- Bottom Area Wrapper -->
 			<div
@@ -28,7 +28,7 @@ import TodoContent from "../components/panels/TodoContent.astro";
 				<div
 					id="left-text"
 					class="space-y-3"
-					style="transition: opacity 1600ms ease;"
+					style="transition: opacity 1800ms ease;"
 				>
 					<div
 						class="flex items-center gap-3 text-[12px] font-medium tracking-widest opacity-80"
@@ -50,7 +50,7 @@ import TodoContent from "../components/panels/TodoContent.astro";
 				<div
 					id="name-plate"
 					class="name-plate text-right flex flex-col items-end cursor-crosshair drop-shadow-sm pointer-events-auto"
-					style="transition: opacity 1600ms ease;"
+					style="transition: opacity 1800ms ease;"
 				>
 					<h1
 						id="name-heading"
@@ -452,7 +452,7 @@ import TodoContent from "../components/panels/TodoContent.astro";
 			let activePanelId: string | null = null;
 
 			// ---------- Night mode state ----------
-			let isNight = false;
+			let isNight = sessionStorage.getItem("isNight") === "true";
 			const nightLayer = document.getElementById(
 				"desk-night",
 			) as HTMLElement | null;
@@ -529,9 +529,64 @@ import TodoContent from "../components/panels/TodoContent.astro";
 				});
 			};
 
+			// Apply night mode on load with a "darkness to unlit room" effect
+			const applyNightInstantly = () => {
+				if (!deskBg || !nightLayer) return;
+
+				// Disable initial day-mode fade-in animations
+				deskBg.style.animation = "none";
+				deskBg.style.opacity = "1";
+				if (uiOverlay) {
+					uiOverlay.style.animation = "none";
+					uiOverlay.style.opacity = "1";
+				}
+
+				// Start in deep darkness
+				deskBg.style.transition = "none";
+				deskBg.style.filter = "brightness(0.06) saturate(0)";
+				nightLayer.style.transition = "none";
+				nightLayer.style.opacity = "1";
+
+				// Prepare UI state but keep text hidden for initial darkness
+				applyUIState(true);
+				textEls.forEach((el) => {
+					if (el) {
+						el.style.transition = "none";
+						el.style.opacity = "0";
+					}
+				});
+
+				// Force a reflow
+				void deskBg.offsetHeight;
+
+				// Start the "eyes adjusting" transition after a short delay
+				setTimeout(() => {
+					deskBg.style.transition = `filter 2500ms cubic-bezier(0.16, 1, 0.3, 1)`;
+					deskBg.style.filter = "brightness(0.85) saturate(0.9)";
+
+					textEls.forEach((el) => {
+						if (el) {
+							el.style.transition = "opacity 2000ms ease";
+							el.style.opacity = "1";
+						}
+					});
+
+					setTimeout(() => {
+						deskBg.style.transition = DEFAULT_FILTER_TRANSITION;
+						nightLayer.style.transition = "";
+						textEls.forEach((el) => {
+							if (el) el.style.transition = "";
+						});
+					}, 2500);
+				}, 600);
+			};
+
+			if (isNight) applyNightInstantly();
+
 			const toggleNight = () => {
 				if (!deskBg) return;
 				isNight = !isNight;
+				sessionStorage.setItem("isNight", String(isNight));
 				applyUIState(isNight);
 
 				// GPU hint for the duration of the animation
@@ -539,9 +594,9 @@ import TodoContent from "../components/panels/TodoContent.astro";
 
 				if (isNight) {
 					// ── Day → Night ──────────────────────────────────────────
-					// Phase 1: night falls — dim to near-black + fade text out
+					// Phase 1: night falls — dim + desaturate (colour drains as light goes)
 					deskBg.style.transition = `${BASE_TRANSITION}, filter 1800ms cubic-bezier(0.4,0,0.6,1)`;
-					deskBg.style.filter = "brightness(0.06)";
+					deskBg.style.filter = "brightness(0.06) saturate(0.2)";
 					fadeTextOpacity("0");
 
 					// 1800ms dim + 250ms hold in darkness = lamp clicks at 2050ms
@@ -552,14 +607,15 @@ import TodoContent from "../components/panels/TodoContent.astro";
 
 						// Phase 2b: instant brightness burst (no transition — pure flash)
 						deskBg.style.transition = BASE_TRANSITION;
-						deskBg.style.filter = "brightness(1.5)";
+						deskBg.style.filter = "brightness(1.5) saturate(1.1)";
 						void deskBg.offsetHeight; // commit the flash
 
 						// Phase 3: settle to warm lamp level
 						requestAnimationFrame(() => {
 							requestAnimationFrame(() => {
 								deskBg.style.transition = `${BASE_TRANSITION}, filter 700ms cubic-bezier(0.16,1,0.3,1)`;
-								deskBg.style.filter = "brightness(0.85)";
+								deskBg.style.filter =
+									"brightness(0.85) saturate(0.9)";
 								setTimeout(() => {
 									deskBg.style.transition =
 										DEFAULT_FILTER_TRANSITION;
@@ -570,24 +626,32 @@ import TodoContent from "../components/panels/TodoContent.astro";
 					}, 2050);
 				} else {
 					// ── Night → Day ──────────────────────────────────────────
-					// Phase 1: lamp off — quick dim + fade text out
-					deskBg.style.transition = `${BASE_TRANSITION}, filter 500ms cubic-bezier(0.4,0,0.6,1)`;
-					deskBg.style.filter = "brightness(0.06)";
-					fadeTextOpacity("0");
+					// Phase 1: instant lamp off — snap to cold dark, no transition
+					deskBg.style.transition = BASE_TRANSITION;
+					deskBg.style.filter = "brightness(0.06) saturate(0)";
+					void deskBg.offsetHeight; // commit instantly
+					snapTextOpacity("0");
 
+					// Brief hold — lamp-off moment
 					setTimeout(() => {
-						// Phase 2: instant cut back to day image + text snaps back
+						// Phase 2: invisibly swap to day image while fully dark
 						snapNightLayer("0");
-						snapTextOpacity("1");
 
-						// Phase 3: sunrise — daylight slowly restores
-						deskBg.style.transition = `${BASE_TRANSITION}, filter 1800ms cubic-bezier(0.16,1,0.3,1)`;
-						deskBg.style.filter = "brightness(1)";
+						// Phase 3: dawn — slow ease-in so it barely moves at first
+						// then accelerates like the sun cresting the horizon
+						// Colour warms and saturates as brightness rises
+						deskBg.style.transition = `${BASE_TRANSITION}, filter 3000ms cubic-bezier(0.6,0,0.8,1)`;
+						deskBg.style.filter = "brightness(1) saturate(1)";
+
+						// Text reappears mid-rise when there's enough light (aligned to 3s)
+						setTimeout(() => snapTextOpacity("1"), 1500);
+
+						// Cleanup
 						setTimeout(() => {
 							deskBg.style.transition = DEFAULT_FILTER_TRANSITION;
 							deskBg.style.willChange = "auto";
-						}, 1800);
-					}, 500);
+						}, 3000);
+					}, 300);
 				}
 			};
 
