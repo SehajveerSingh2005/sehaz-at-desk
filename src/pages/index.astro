@@ -851,8 +851,8 @@ import KeyboardContent from "../components/panels/KeyboardContent.astro";
 				"[": { r: 1, c: 11.5, w: 1 },
 				"]": { r: 1, c: 12.5, w: 1 },
 				"\\": { r: 1, c: 13.5, w: 1.5 },
-				capslock: { r: 2, c: 0, w: 1.75 },
-				a: { r: 2, c: 2.25, w: 1 },
+				capslock: { r: 2, c: 0.5, w: 1.75 },
+				a: { r: 2, c: 2.10, w: 1 },
 				s: { r: 2, c: 3, w: 1 },
 				d: { r: 2, c: 4, w: 1 },
 				f: { r: 2, c: 5, w: 1 },
@@ -864,7 +864,7 @@ import KeyboardContent from "../components/panels/KeyboardContent.astro";
 				";": { r: 2, c: 10.75, w: 1 },
 				"'": { r: 2, c: 11.75, w: 1 },
 				enter: { r: 2, c: 12.75, w: 2.25 },
-				shift: { r: 3, c: 0, w: 2.25 },
+				shift: { r: 2.8, c: 0.5, w: 2.25 },
 				z: { r: 3, c: 2.5, w: 1 },
 				x: { r: 3, c: 3.5, w: 1 },
 				c: { r: 3, c: 4.5, w: 1 },
@@ -876,10 +876,10 @@ import KeyboardContent from "../components/panels/KeyboardContent.astro";
 				".": { r: 3, c: 10.25, w: 1 },
 				"/": { r: 3, c: 11.25, w: 1 },
 				arrowup: { r: 3, c: 14.15, w: 1 },
-				control: { r: 4, c: 0, w: 1.25 },
+				control: { r: 3.75, c: 0.5, w: 1.25 },
 				meta: { r: 4, c: 1.25, w: 1.25 },
-				alt: { r: 4, c: 2.5, w: 1.25 },
-				" ": { r: 3.75, c: 3.75, w: 7 },
+				alt: { r: 3.75, c: 2.75, w: 1.25 },
+				" ": { r: 3.75, c: 3.65, w: 7.25 },
 				arrowleft: { r: 3.75, c: 13.25, w: 1 },
 				arrowdown: { r: 3.75, c: 14.15, w: 1 },
 				arrowright: { r: 3.75, c: 15, w: 1 },
@@ -904,14 +904,12 @@ import KeyboardContent from "../components/panels/KeyboardContent.astro";
 
 					// Use inline styles to bypass Tailwind JIT purging on dynamic elements
 					glow.style.position = "absolute";
-					glow.style.backgroundColor = "rgba(255, 255, 255, 0.45)";
+					glow.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
 					glow.style.borderRadius = "4px";
 					glow.style.pointerEvents = "none";
 					glow.style.zIndex = "10";
 					glow.style.transition =
-						"all 400ms cubic-bezier(0.16, 1, 0.3, 1)";
-					glow.style.boxShadow =
-						"0 0 16px 6px rgba(255, 255, 255, 0.3)";
+						"all 500ms cubic-bezier(0.16, 1, 0.3, 1)";
 
 					const left = mapData.c * 6.25;
 					const top = mapData.r * 20;
@@ -923,21 +921,25 @@ import KeyboardContent from "../components/panels/KeyboardContent.astro";
 					glow.style.width = `${width}%`;
 					glow.style.height = `${height}%`;
 
-					// Initial active un-transitioned state
+					// Initial active un-transitioned state (Key pressed DOWN state)
 					glow.style.opacity = "1";
-					glow.style.transform = "translateY(2px) scale(0.95)";
+					glow.style.transform = "translateY(1.5px) scale(0.96)";
+					glow.style.boxShadow =
+						"0 0 24px 10px rgba(255, 255, 255, 0.5), inset 0px 4px 6px rgba(0,0,0,0.4)";
 
 					keyGlows.appendChild(glow);
 
-					// Allow browser paint cycle to catch the initial state before transitioning
+					// Define key released UP state
 					setTimeout(() => {
 						glow.style.opacity = "0";
-						glow.style.transform = "translateY(0) scale(1.05)";
-					}, 20);
+						glow.style.transform = "translateY(-1px) scale(1.04)";
+						glow.style.boxShadow =
+							"0 0 45px 18px rgba(255, 255, 255, 0), inset 0px -2px 4px rgba(0,0,0,0)";
+					}, 50); // Keep it "pressed" for a fraction of a second
 
 					setTimeout(() => {
 						glow.remove();
-					}, 500); // Buffer after 400ms transition
+					}, 600); // Buffer after transition
 				}
 			});
 		});
