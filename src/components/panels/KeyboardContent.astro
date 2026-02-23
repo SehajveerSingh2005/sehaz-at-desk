@@ -1,0 +1,755 @@
+---
+
+---
+
+<div class="typing-game max-w-xl" id="typing-game-root">
+    <!-- Header -->
+    <header class="space-y-3 border-b border-black/10 pb-6 mb-8">
+        <span
+            class="text-[11px] font-medium tracking-[0.2em] uppercase text-[#8B0000]/80"
+            >Keyboard · Typing Test</span
+        >
+        <h2
+            class="text-[52px] font-serif font-normal tracking-normal leading-[1.05] text-[#1C1917]"
+        >
+            Clack<br />Clack.
+        </h2>
+    </header>
+
+    <!-- Stats bar -->
+    <div class="grid grid-cols-3 gap-6 mb-8" id="stats-bar">
+        <div>
+            <p
+                class="text-[36px] font-serif font-normal leading-none text-[#1C1917]"
+                id="wpm-display"
+            >
+                —
+            </p>
+            <p
+                class="text-[11px] uppercase tracking-widest text-[#1C1917]/40 mt-1"
+            >
+                WPM
+            </p>
+        </div>
+        <div>
+            <p
+                class="text-[36px] font-serif font-normal leading-none text-[#1C1917]"
+                id="acc-display"
+            >
+                —
+            </p>
+            <p
+                class="text-[11px] uppercase tracking-widest text-[#1C1917]/40 mt-1"
+            >
+                Accuracy
+            </p>
+        </div>
+        <div>
+            <p
+                class="text-[36px] font-serif font-normal leading-none text-[#1C1917]"
+                id="timer-display"
+            >
+                15
+            </p>
+            <p
+                class="text-[11px] uppercase tracking-widest text-[#1C1917]/40 mt-1"
+            >
+                Seconds
+            </p>
+        </div>
+    </div>
+
+    <!-- ─── Typing area: single overlay box ──────────────────────────── -->
+    <div id="typing-area" class="relative group">
+        <div
+            id="words-display"
+            class="relative font-mono text-[24px] leading-[1.6] tracking-tight cursor-text select-none rounded p-6 bg-stone-100/40 border border-stone-200 h-[160px] focus-within:border-stone-400 transition-all duration-300 overflow-hidden"
+        >
+            <div id="words-container" class="relative">
+                <div
+                    id="caret"
+                    class="absolute w-[2px] h-[1.15em] bg-[#8B0000] transition-all duration-75 ease-out z-10 opacity-0 translate-y-[0.25em]"
+                >
+                </div>
+                <!-- Dynamic characters go here -->
+                <div id="words-chars" class="relative"></div>
+            </div>
+        </div>
+
+        <input
+            id="hidden-input"
+            type="text"
+            autocomplete="off"
+            autocorrect="off"
+            autocapitalize="off"
+            spellcheck="false"
+            class="sr-only"
+        />
+
+        <div class="flex items-center justify-between mt-6">
+            <p class="text-[11px] text-[#1C1917]/30 uppercase tracking-widest">
+                Click box to start &middot; <kbd
+                    class="px-1.5 py-0.5 bg-black/5 rounded border border-black/10"
+                    >Tab</kbd
+                > to reset
+            </p>
+            <span
+                class="text-[11px] text-[#8B0000] font-medium uppercase tracking-widest opacity-0 transition-opacity duration-300"
+                id="focus-error">Not Focused</span
+            >
+        </div>
+    </div>
+
+    <!-- Results screen -->
+    <div
+        id="results-screen"
+        class="hidden opacity-0 transition-opacity duration-500 space-y-10 py-4"
+    >
+        <div class="space-y-2">
+            <span
+                class="text-[11px] font-medium tracking-[0.2em] uppercase text-[#8B0000]"
+                >Performance Report</span
+            >
+            <h3 class="text-[32px] font-serif font-normal text-[#1C1917]">
+                Session Complete.
+            </h3>
+        </div>
+
+        <div
+            class="grid grid-cols-2 gap-px bg-stone-200 border border-stone-200 overflow-hidden rounded"
+        >
+            <div class="p-8 bg-white space-y-2">
+                <p
+                    class="text-[64px] font-serif font-normal leading-none text-[#1C1917]"
+                    id="final-wpm"
+                >
+                    0
+                </p>
+                <p
+                    class="text-[11px] uppercase tracking-widest text-[#1C1917]/40"
+                >
+                    Words per minute
+                </p>
+            </div>
+            <div class="p-8 bg-white space-y-2">
+                <p
+                    class="text-[64px] font-serif font-normal leading-none text-[#1C1917]"
+                    id="final-acc"
+                >
+                    0%
+                </p>
+                <p
+                    class="text-[11px] uppercase tracking-widest text-[#1C1917]/40"
+                >
+                    Typing Accuracy
+                </p>
+            </div>
+        </div>
+
+        <div class="flex items-center justify-between pt-4">
+            <p
+                class="text-[15px] text-[#1C1917]/60 italic font-serif"
+                id="result-message"
+            >
+            </p>
+            <button
+                id="restart-btn"
+                class="group flex items-center gap-4 text-[13px] font-medium text-[#1C1917] hover:text-[#8B0000] transition-colors duration-300"
+            >
+                <div
+                    class="w-10 h-10 rounded-full border border-stone-200 flex items-center justify-center transition-all duration-500 group-hover:border-[#8B0000] group-hover:bg-[#8B0000]/5"
+                >
+                    <span
+                        class="transition-transform duration-500 group-hover:rotate-180"
+                        >↺</span
+                    >
+                </div>
+                Restart Session
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ─── SOUND ENGINE ─────────────────────────────────────────────────────────
+    // Real NK Cream mechanical keyboard WAV samples, loaded via Web Audio API.
+    // We pick the per-letter file when we have it, then fall back to a pool
+    // of similar-sounding keys so every keystroke feels slightly different.
+
+    const BASE = "/sounds/nk-cream";
+
+    // Key → sound file mapping (per-letter where we have them)
+    const LETTER_SOUNDS: Record<string, string> = {
+        a: `${BASE}/a.wav`,
+        e: `${BASE}/e.wav`,
+        i: `${BASE}/i.wav`,
+        o: `${BASE}/o.wav`,
+        s: `${BASE}/s.wav`,
+        t: `${BASE}/t.wav`,
+    };
+    // Fallback pool (rotate through for variety on letters we don't have)
+    const FALLBACK_POOL = [
+        `${BASE}/a.wav`,
+        `${BASE}/e.wav`,
+        `${BASE}/s.wav`,
+        `${BASE}/t.wav`,
+        `${BASE}/i.wav`,
+        `${BASE}/o.wav`,
+    ];
+    const SPACE_SND = `${BASE}/space.wav`;
+    const BACKSPACE_SND = `${BASE}/backspace.wav`;
+    const ENTER_SND = `${BASE}/enter.wav`;
+
+    let audioCtx: AudioContext | null = null;
+    // Decoded AudioBuffer cache so we only decode each file once
+    const bufferCache = new Map<string, AudioBuffer>();
+    let fallbackIdx = 0;
+
+    async function getCtx(): Promise<AudioContext> {
+        if (!audioCtx) audioCtx = new AudioContext();
+        if (audioCtx.state === "suspended") await audioCtx.resume();
+        return audioCtx;
+    }
+
+    async function loadBuffer(url: string): Promise<AudioBuffer | null> {
+        if (bufferCache.has(url)) return bufferCache.get(url)!;
+        try {
+            const ctx = await getCtx();
+            const res = await fetch(url);
+            const arr = await res.arrayBuffer();
+            const buf = await ctx.decodeAudioData(arr);
+            bufferCache.set(url, buf);
+            return buf;
+        } catch {
+            return null;
+        }
+    }
+
+    async function playBuffer(url: string, gainVal = 0.9, pitchRate = 1.0) {
+        const buf = await loadBuffer(url);
+        if (!buf) return;
+        const ctx = await getCtx();
+        const src = ctx.createBufferSource();
+        src.buffer = buf;
+        src.playbackRate.value = pitchRate;
+        const gain = ctx.createGain();
+        gain.gain.value = gainVal;
+        src.connect(gain);
+        gain.connect(ctx.destination);
+        src.start();
+    }
+
+    // Preload all sounds eagerly once on first interaction
+    let preloaded = false;
+    async function preloadSounds() {
+        if (preloaded) return;
+        preloaded = true;
+        const all = [
+            ...Object.values(LETTER_SOUNDS),
+            SPACE_SND,
+            BACKSPACE_SND,
+            ENTER_SND,
+        ];
+        await Promise.all(all.map(loadBuffer));
+    }
+
+    function playKey(key: string) {
+        // Slight random pitch variation (±3%) to make repeated sounds feel natural
+        const pitch = 0.97 + Math.random() * 0.06;
+
+        if (key === " ") {
+            playBuffer(SPACE_SND, 1.0, pitch);
+        } else if (key === "Backspace") {
+            playBuffer(BACKSPACE_SND, 0.85, pitch);
+        } else if (key === "Enter") {
+            playBuffer(ENTER_SND, 1.0, pitch);
+        } else {
+            const lower = key.toLowerCase();
+            const url =
+                LETTER_SOUNDS[lower] ??
+                FALLBACK_POOL[fallbackIdx++ % FALLBACK_POOL.length];
+            playBuffer(url, 0.9, pitch);
+        }
+    }
+
+    // ─── WORD LIST (top-200 common English words) ─────────────────────────────
+    const WORDS = [
+        "the",
+        "be",
+        "to",
+        "of",
+        "and",
+        "a",
+        "in",
+        "that",
+        "have",
+        "it",
+        "for",
+        "not",
+        "on",
+        "with",
+        "he",
+        "as",
+        "you",
+        "do",
+        "at",
+        "this",
+        "but",
+        "his",
+        "by",
+        "from",
+        "they",
+        "we",
+        "say",
+        "her",
+        "she",
+        "or",
+        "an",
+        "will",
+        "my",
+        "one",
+        "all",
+        "would",
+        "there",
+        "their",
+        "what",
+        "so",
+        "up",
+        "out",
+        "if",
+        "about",
+        "who",
+        "get",
+        "which",
+        "go",
+        "me",
+        "when",
+        "make",
+        "can",
+        "like",
+        "time",
+        "no",
+        "just",
+        "him",
+        "know",
+        "take",
+        "people",
+        "into",
+        "year",
+        "your",
+        "good",
+        "some",
+        "could",
+        "them",
+        "see",
+        "other",
+        "than",
+        "then",
+        "now",
+        "look",
+        "only",
+        "come",
+        "its",
+        "over",
+        "think",
+        "also",
+        "back",
+        "after",
+        "use",
+        "two",
+        "how",
+        "our",
+        "work",
+        "first",
+        "well",
+        "way",
+        "even",
+        "new",
+        "want",
+        "because",
+        "any",
+        "these",
+        "give",
+        "day",
+        "most",
+        "us",
+        "great",
+        "between",
+        "need",
+        "large",
+        "often",
+        "hand",
+        "high",
+        "place",
+        "hold",
+        "turn",
+        "with",
+        "show",
+        "around",
+        "help",
+        "place",
+        "still",
+        "should",
+        "around",
+        "found",
+        "leave",
+        "put",
+        "end",
+        "does",
+        "another",
+        "well",
+        "large",
+        "open",
+        "seem",
+        "together",
+        "next",
+        "white",
+        "children",
+        "simple",
+        "light",
+        "voice",
+        "power",
+        "town",
+        "fine",
+        "drive",
+        "short",
+        "road",
+        "north",
+        "south",
+        "create",
+        "learn",
+        "write",
+        "code",
+        "build",
+        "ship",
+        "test",
+        "debug",
+        "deploy",
+        "read",
+        "parse",
+        "merge",
+        "push",
+        "pull",
+        "fork",
+        "clone",
+        "branch",
+        "commit",
+    ];
+
+    function randomWords(count = 30): string[] {
+        const out: string[] = [];
+        for (let i = 0; i < count; i++) {
+            out.push(WORDS[Math.floor(Math.random() * WORDS.length)]);
+        }
+        return out;
+    }
+
+    // ─── GAME STATE ────────────────────────────────────────────────────────────
+    let words: string[] = [];
+    let flatText = ""; // space-joined string of all words
+    let typedText = ""; // what the user has typed so far
+    let gameActive = false;
+    let gameStarted = false;
+    let timerInterval: ReturnType<typeof setInterval> | null = null;
+    let timeLeft = 15;
+    let correctChars = 0;
+    let totalTyped = 0;
+
+    const wordsDisplay = document.getElementById("words-display")!;
+    const wordsChars = document.getElementById("words-chars")!;
+    const caret = document.getElementById("caret")!;
+    const hiddenInput = document.getElementById(
+        "hidden-input",
+    ) as HTMLInputElement;
+    const wpmDisplay = document.getElementById("wpm-display")!;
+    const accDisplay = document.getElementById("acc-display")!;
+    const timerDisplay = document.getElementById("timer-display")!;
+    const typingArea = document.getElementById("typing-area")!;
+    const resultsScreen = document.getElementById("results-screen")!;
+    const finalWpm = document.getElementById("final-wpm")!;
+    const finalAcc = document.getElementById("final-acc")!;
+    const resultMsg = document.getElementById("result-message")!;
+    const restartBtn = document.getElementById("restart-btn")!;
+    const focusError = document.getElementById("focus-error")!;
+
+    // ─── RENDER ────────────────────────────────────────────────────────────────
+    function renderWords() {
+        let charsHTML = "";
+        let currentWordHTML = '<span class="inline-block">'; // Start first word
+
+        for (let i = 0; i < flatText.length; i++) {
+            const ch = flatText[i];
+            const typedCh = typedText[i];
+
+            let cls =
+                "relative inline-block whitespace-pre font-normal transition-colors duration-75 ";
+
+            if (typedCh !== undefined) {
+                if (typedCh === ch) {
+                    cls += "text-stone-900"; // Correct
+                } else {
+                    if (ch === " ") {
+                        cls += "bg-red-500/20"; // Wrong space
+                    } else {
+                        cls += "text-red-500 underline underline-offset-4"; // Wrong char
+                    }
+                }
+            } else {
+                cls += "text-slate-400"; // Pending
+            }
+
+            if (i === typedText.length) cls += " current";
+
+            const display = ch === " " ? " " : ch;
+            currentWordHTML += `<span class="${cls}">${display}</span>`;
+
+            // If we hit a space, close the current word container and start a new one
+            if (ch === " ") {
+                currentWordHTML += "</span>"; // close current word
+                charsHTML += currentWordHTML;
+                currentWordHTML = '<span class="inline-block">'; // start next word
+            }
+        }
+
+        // Append the last word
+        currentWordHTML += "</span>";
+        charsHTML += currentWordHTML;
+
+        wordsChars.innerHTML = charsHTML;
+        updateCaret();
+    }
+
+    function updateCaret() {
+        const currentEl = wordsChars.querySelector(
+            ".current",
+        ) as HTMLElement | null;
+        if (currentEl) {
+            caret.style.opacity = "1";
+            caret.style.left = `${currentEl.offsetLeft}px`;
+            caret.style.top = `${currentEl.offsetTop}px`;
+
+            const container = wordsDisplay;
+            const lineIdx = Math.floor(currentEl.offsetTop / (24 * 1.6)); // approx line index based on line-height
+
+            // Proactive scrolling: keep the active line centered or at the top
+            const targetScroll = currentEl.offsetTop - 1.6 * 24; // scroll to keep 1 line above visible
+            if (Math.abs(container.scrollTop - targetScroll) > 10) {
+                container.scrollTo({
+                    top: targetScroll,
+                    behavior: "smooth",
+                });
+            }
+        }
+    }
+
+    // ─── STATS ─────────────────────────────────────────────────────────────────
+    function calcWpm() {
+        const elapsed = Math.max(0.1, 15 - timeLeft);
+        return Math.round((correctChars / 5 / elapsed) * 60);
+    }
+    function updateStats() {
+        wpmDisplay.textContent = gameStarted ? String(calcWpm()) : "—";
+        accDisplay.textContent = gameStarted
+            ? `${Math.round((correctChars / Math.max(1, totalTyped)) * 100)}%`
+            : "—";
+        timerDisplay.textContent = String(timeLeft);
+    }
+
+    // ─── END / RESULTS ─────────────────────────────────────────────────────────
+    function endGame() {
+        gameActive = false;
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        const wpm = calcWpm();
+        const acc =
+            totalTyped === 0
+                ? 100
+                : Math.round((correctChars / totalTyped) * 100);
+
+        finalWpm.textContent = String(wpm);
+        finalAcc.textContent = `${acc}%`;
+
+        if (wpm > 100) resultMsg.textContent = "You're a technical phenom.";
+        else if (wpm > 75) resultMsg.textContent = "Professional grade speed.";
+        else if (wpm > 50) resultMsg.textContent = "Clean, steady, efficient.";
+        else resultMsg.textContent = "Precision over speed. Keep at it.";
+
+        typingArea.style.opacity = "0";
+        setTimeout(() => {
+            typingArea.style.display = "none";
+            resultsScreen.classList.remove("hidden");
+            requestAnimationFrame(() => {
+                resultsScreen.style.opacity = "1";
+            });
+        }, 250);
+    }
+
+    // ─── INIT ──────────────────────────────────────────────────────────────────
+    function initGame() {
+        gameActive = true;
+        gameStarted = false;
+
+        // Critical: Clear previous interval if the user restarts midway
+        if (timerInterval) {
+            clearInterval(timerInterval);
+            timerInterval = null;
+        }
+
+        timeLeft = 15;
+        correctChars = 0;
+        totalTyped = 0;
+        typedText = "";
+        hiddenInput.value = "";
+        words = randomWords(80);
+        flatText = words.join(" ");
+
+        resultsScreen.classList.add("hidden");
+        resultsScreen.style.opacity = "0";
+        typingArea.style.display = "";
+        typingArea.style.opacity = "1";
+
+        renderWords();
+        updateStats();
+        hiddenInput.focus();
+        preloadSounds();
+    }
+
+    function focusInput() {
+        hiddenInput.focus({ preventScroll: true });
+    }
+
+    // Tab = restart
+    function globalKeydown(e: KeyboardEvent) {
+        if (e.key === "Tab") {
+            e.preventDefault();
+            initGame();
+        }
+    }
+
+    // Use keydown for sound (fires before input event so sound is instant)
+    hiddenInput.addEventListener("keydown", (e) => {
+        if (!gameActive) return;
+
+        // Timer only starts on the very first character input (non-meta keys)
+        if (!gameStarted && e.key.length === 1 && !e.ctrlKey && !e.metaKey) {
+            gameStarted = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateStats();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        if (e.key.length === 1 || e.key === "Backspace" || e.key === "Enter") {
+            playKey(e.key);
+        }
+    });
+
+    hiddenInput.addEventListener("input", () => {
+        if (!gameActive) return;
+        typedText = hiddenInput.value;
+
+        // Safety check if timer didn't start in keydown (e.g. mobile/composition)
+        if (!gameStarted && typedText.length > 0) {
+            gameStarted = true;
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                updateStats();
+                if (timeLeft <= 0) endGame();
+            }, 1000);
+        }
+
+        // Count correct chars
+        let correct = 0;
+        for (let i = 0; i < typedText.length; i++) {
+            if (typedText[i] === flatText[i]) correct++;
+        }
+        correctChars = correct;
+        totalTyped = typedText.length;
+
+        // If typed beyond flatText length — load more words seamlessly
+        if (typedText.length >= flatText.length - 10) {
+            const extra = randomWords(20);
+            flatText += " " + extra.join(" ");
+        }
+
+        renderWords();
+        updateStats();
+    });
+
+    wordsDisplay.addEventListener("click", () => hiddenInput.focus());
+    restartBtn.addEventListener("click", initGame);
+
+    // Focus error feedback
+    setInterval(() => {
+        if (gameActive && document.activeElement !== hiddenInput) {
+            focusError.style.opacity = "1";
+        } else {
+            focusError.style.opacity = "0";
+        }
+    }, 500);
+
+    // ─── PANEL LIFECYCLE ───────────────────────────────────────────────────────
+    const panel = document.getElementById("panel-fun-keyboard");
+    if (panel) {
+        new MutationObserver(() => {
+            if (panel.classList.contains("active")) {
+                if (!gameActive) setTimeout(initGame, 420);
+                document.addEventListener("keydown", globalKeydown);
+            } else {
+                gameActive = false;
+                gameStarted = false;
+                if (timerInterval) {
+                    clearInterval(timerInterval);
+                    timerInterval = null;
+                }
+                document.removeEventListener("keydown", globalKeydown);
+            }
+        }).observe(panel, { attributes: true });
+    }
+</script>
+
+<style>
+    /* ─── character states ─────────────── */
+    #words-display {
+        scrollbar-width: none;
+    }
+    #words-display::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* We use global Tailwind classes now for character states 
+       because Astro's scoped styles don't apply to dynamically generated innerHTML. */
+    #words-display {
+        scrollbar-width: none;
+    }
+    #words-display::-webkit-scrollbar {
+        display: none;
+    }
+
+    #caret {
+        animation: blink 1.2s infinite;
+    }
+    @keyframes blink {
+        0%,
+        100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0;
+        }
+    }
+
+    /* results transition */
+    #typing-area {
+        transition: opacity 300ms ease;
+    }
+    #results-screen {
+        transition: opacity 500ms ease;
+    }
+</style>
