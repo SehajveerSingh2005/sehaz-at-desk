@@ -1,0 +1,214 @@
+---
+
+---
+
+<!-- Passive Keyboard Glow Container -->
+<div
+    id="passive-keyboard-glows"
+    class="absolute pointer-events-none z-10"
+    style="top: 67%; left: 37%; width: 25%; height: 15%; perspective: 500px;"
+>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const keyGlows = document.getElementById("passive-keyboard-glows");
+        const BASE = "/sounds/nk-cream";
+        const LETTER_SOUNDS = {
+            a: `${BASE}/a.wav`,
+            e: `${BASE}/e.wav`,
+            i: `${BASE}/i.wav`,
+            o: `${BASE}/o.wav`,
+            s: `${BASE}/s.wav`,
+            t: `${BASE}/t.wav`,
+        };
+        const FALLBACK_POOL = [
+            `${BASE}/a.wav`,
+            `${BASE}/e.wav`,
+            `${BASE}/s.wav`,
+            `${BASE}/t.wav`,
+            `${BASE}/i.wav`,
+            `${BASE}/o.wav`,
+        ];
+        const SPACE_SND = `${BASE}/space.wav`;
+        const BACKSPACE_SND = `${BASE}/backspace.wav`;
+        const ENTER_SND = `${BASE}/enter.wav`;
+
+        let audioCtx: AudioContext | null = null;
+        const bufferCache = new Map<string, AudioBuffer>();
+        let fallbackIdx = 0;
+
+        async function getCtx(): Promise<AudioContext> {
+            if (!audioCtx) audioCtx = new AudioContext();
+            if (audioCtx.state === "suspended") await audioCtx.resume();
+            return audioCtx;
+        }
+
+        async function loadBuffer(url: string): Promise<AudioBuffer | null> {
+            if (bufferCache.has(url)) return bufferCache.get(url)!;
+            try {
+                const ctx = await getCtx();
+                const res = await fetch(url);
+                const arr = await res.arrayBuffer();
+                const buf = await ctx.decodeAudioData(arr);
+                bufferCache.set(url, buf);
+                return buf;
+            } catch {
+                return null;
+            }
+        }
+
+        function playPassiveKey(key: string) {
+            const pitch = 0.97 + Math.random() * 0.06;
+            let url = "";
+            if (key === " ") url = SPACE_SND;
+            else if (key === "Backspace") url = BACKSPACE_SND;
+            else if (key === "Enter") url = ENTER_SND;
+            else {
+                const lower = key.toLowerCase();
+                url =
+                    (LETTER_SOUNDS as Record<string, string>)[lower] ??
+                    FALLBACK_POOL[fallbackIdx++ % FALLBACK_POOL.length];
+            }
+
+            loadBuffer(url).then((buf) => {
+                if (!buf) return;
+                getCtx().then((ctx) => {
+                    const src = ctx.createBufferSource();
+                    src.buffer = buf;
+                    src.playbackRate.value = pitch;
+                    const gain = ctx.createGain();
+                    gain.gain.value = 0.45; // Quieter for background ambiance
+                    src.connect(gain);
+                    gain.connect(ctx.destination);
+                    src.start();
+                });
+            });
+        }
+
+        // Map layout based on 25% width, 15% height bounds of keyboard.
+        // 65% keyboard roughly: 16 cols (6.25% each), 5 rows (20% each)
+        const KMAP: Record<string, { r: number; c: number; w: number }> = {
+            "`": { r: 0, c: 0, w: 1 },
+            "1": { r: 0, c: 1, w: 1 },
+            "2": { r: 0, c: 2, w: 1 },
+            "3": { r: 0, c: 3, w: 1 },
+            "4": { r: 0, c: 4, w: 1 },
+            "5": { r: 0, c: 5, w: 1 },
+            "6": { r: 0, c: 6, w: 1 },
+            "7": { r: 0, c: 7, w: 1 },
+            "8": { r: 0, c: 8, w: 1 },
+            "9": { r: 0, c: 9, w: 1 },
+            "0": { r: 0, c: 10, w: 1 },
+            "-": { r: 0, c: 11, w: 1 },
+            "=": { r: 0, c: 12, w: 1 },
+            backspace: { r: 0, c: 13, w: 2 },
+            tab: { r: 1, c: 0, w: 1.5 },
+            q: { r: 1, c: 2, w: 1 },
+            w: { r: 1, c: 3, w: 1 },
+            e: { r: 1, c: 3.75, w: 1 },
+            r: { r: 1, c: 4.75, w: 1 },
+            t: { r: 1, c: 5.75, w: 1 },
+            y: { r: 1, c: 6.75, w: 1 },
+            u: { r: 1, c: 7.75, w: 1 },
+            i: { r: 1, c: 8.5, w: 1 },
+            o: { r: 1, c: 9.5, w: 1 },
+            p: { r: 1, c: 10.5, w: 1 },
+            "[": { r: 1, c: 11.5, w: 1 },
+            "]": { r: 1, c: 12.5, w: 1 },
+            "\\": { r: 1, c: 13.5, w: 1.5 },
+            capslock: { r: 2, c: 0.5, w: 1.75 },
+            a: { r: 2, c: 2.1, w: 1 },
+            s: { r: 2, c: 3, w: 1 },
+            d: { r: 2, c: 4, w: 1 },
+            f: { r: 2, c: 5, w: 1 },
+            g: { r: 2, c: 6, w: 1 },
+            h: { r: 2, c: 7, w: 1 },
+            j: { r: 2, c: 7.75, w: 1 },
+            k: { r: 2, c: 8.75, w: 1 },
+            l: { r: 2, c: 9.75, w: 1 },
+            ";": { r: 2, c: 10.75, w: 1 },
+            "'": { r: 2, c: 11.75, w: 1 },
+            enter: { r: 2, c: 12.75, w: 2.25 },
+            shift: { r: 2.8, c: 0.5, w: 2.25 },
+            z: { r: 3, c: 2.5, w: 1 },
+            x: { r: 3, c: 3.5, w: 1 },
+            c: { r: 3, c: 4.5, w: 1 },
+            v: { r: 3, c: 5.5, w: 1 },
+            b: { r: 3, c: 6.5, w: 1 },
+            n: { r: 3, c: 7.5, w: 1 },
+            m: { r: 3, c: 8.25, w: 1 },
+            ",": { r: 3, c: 9.25, w: 1 },
+            ".": { r: 3, c: 10.25, w: 1 },
+            "/": { r: 3, c: 11.25, w: 1 },
+            arrowup: { r: 3, c: 14.15, w: 1 },
+            control: { r: 3.75, c: 0.5, w: 1.25 },
+            meta: { r: 4, c: 1.25, w: 1.25 },
+            alt: { r: 3.75, c: 2.75, w: 1.25 },
+            " ": { r: 3.75, c: 3.65, w: 7.25 },
+            arrowleft: { r: 3.75, c: 13.25, w: 1 },
+            arrowdown: { r: 3.75, c: 14.15, w: 1 },
+            arrowright: { r: 3.75, c: 15, w: 1 },
+        };
+
+        document.addEventListener("keydown", (e) => {
+            // Decoupled state check: ignore if an overlay panel is explicitly active in the DOM
+            if (document.querySelector(".overlay-panel.active")) return;
+
+            // Ignore if typing in an input/textarea
+            const tag = document.activeElement?.tagName.toLowerCase();
+            if (tag === "input" || tag === "textarea") return;
+
+            const keyName = e.key.toLowerCase();
+
+            // Only interact if it's a visible key or mapped
+            if (keyName.length === 1 || KMAP[keyName]) {
+                playPassiveKey(e.key);
+            }
+
+            const mapData = KMAP[keyName];
+            if (mapData && keyGlows) {
+                const glow = document.createElement("div");
+
+                // Use inline styles to bypass Tailwind JIT purging on dynamic elements
+                glow.style.position = "absolute";
+                glow.style.backgroundColor = "rgba(255, 255, 255, 0.6)";
+                glow.style.borderRadius = "4px";
+                glow.style.pointerEvents = "none";
+                glow.style.zIndex = "10";
+                glow.style.transition =
+                    "all 500ms cubic-bezier(0.16, 1, 0.3, 1)";
+
+                const left = mapData.c * 6.25;
+                const top = mapData.r * 20;
+                const width = mapData.w * 6.25 * 0.9; // 90% of bounding box for margin
+                const height = 18 * 0.9; // 90% of row height
+
+                glow.style.left = `${left + mapData.w * 6.25 * 0.05}%`; // center margin
+                glow.style.top = `${top + 20 * 0.05}%`;
+                glow.style.width = `${width}%`;
+                glow.style.height = `${height}%`;
+
+                // Initial active un-transitioned state (Key pressed DOWN state)
+                glow.style.opacity = "1";
+                glow.style.transform = "translateY(1.5px) scale(0.96)";
+                glow.style.boxShadow =
+                    "0 0 24px 10px rgba(255, 255, 255, 0.5), inset 0px 4px 6px rgba(0,0,0,0.4)";
+
+                keyGlows.appendChild(glow);
+
+                // Define key released UP state
+                setTimeout(() => {
+                    glow.style.opacity = "0";
+                    glow.style.transform = "translateY(-1px) scale(1.04)";
+                    glow.style.boxShadow =
+                        "0 0 45px 18px rgba(255, 255, 255, 0), inset 0px -2px 4px rgba(0,0,0,0)";
+                }, 50); // Keep it "pressed" for a fraction of a second
+
+                setTimeout(() => {
+                    glow.remove();
+                }, 600); // Buffer after transition
+            }
+        });
+    });
+</script>
