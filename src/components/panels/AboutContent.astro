@@ -2,57 +2,206 @@
 
 ---
 
-<div class="space-y-10 max-w-lg">
-    <header class="space-y-4">
-        <span
-            class="text-[11px] font-medium tracking-[0.2em] uppercase text-[#8B0000]/80"
-            >Profile</span
-        >
-        <h2
-            class="text-[52px] md:text-[64px] font-serif font-normal tracking-normal leading-[1.05] text-[#1C1917]"
-        >
-            Crafting Software <br /> with Intent
-        </h2>
-    </header>
+<div class="diary-wrapper">
+    <!-- Spine -->
+    <div class="diary-spine"></div>
 
-    <div
-        class="space-y-6 text-[17px] text-secondary leading-relaxed font-light"
-    >
-        <p class="text-primary font-medium text-[20px] leading-snug">
-            Hi, I'm Sehajveer Singh, a full-stack developer passionate about
-            building high-performance, beautiful software.
-        </p>
-        <p>
-            I am currently pursuing my Bachelor of Engineering in Computer
-            Science at Chitkara University (Expected 2027). My approach combines
-            strong technical foundations with a focus on UI/UX, Component
-            Architecture, and responsive design.
-        </p>
-        <div class="pt-4">
-            <h3 class="text-[#8B0000] font-medium mb-3">
-                Primary Stack & Skills
-            </h3>
-            <ul class="space-y-2 text-[15px]">
-                <li>
-                    <strong class="font-medium text-[#8B0000]">Frontend:</strong
-                    > TypeScript, JavaScript, React, Next.js, Astro, Tailwind CSS
-                </li>
-                <li>
-                    <strong class="font-medium text-[#8B0000]"
-                        >Backend & Data:</strong
-                    > Node.js, REST APIs, PostgreSQL, Prisma/Drizzle, Supabase, Firebase
-                </li>
-                <li>
-                    <strong class="font-medium text-[#8B0000]"
-                        >UI & Motion:</strong
-                    > Framer Motion, GSAP
-                </li>
-                <li>
-                    <strong class="font-medium text-[#8B0000]"
-                        >Exploration:</strong
-                    > Svelte, Rust, Java, Python
-                </li>
-            </ul>
+    <!-- Pages -->
+    <div class="diary-pages">
+        <!-- Left page -->
+        <div class="diary-page diary-page-left">
+            <div class="diary-ruled-lines"></div>
+            <div class="diary-page-content diary-page-content-left">
+                <p class="diary-date">July, 2026</p>
+                <p class="diary-entry">
+                    Still building things that feel alive.
+                </p>
+                <p class="diary-entry">
+                    Lately obsessed with physics and motion —
+                    the kind of software that <em>responds</em>, not just displays.
+                </p>
+                <p class="diary-entry">
+                    Some days the best code I write is the code I delete.
+                </p>
+            </div>
+        </div>
+
+        <!-- Right page -->
+        <div class="diary-page diary-page-right">
+            <div class="diary-ruled-lines"></div>
+            <div class="diary-page-content diary-page-content-right">
+                <p class="diary-label">currently into</p>
+                <ul class="diary-list">
+                    <li>rust & systems programming</li>
+                    <li>spring physics in UI</li>
+                    <li>spatial interfaces</li>
+                    <li>voice-first experiences</li>
+                </ul>
+
+                <p class="diary-label" style="margin-top: 2rem;">building</p>
+                <ul class="diary-list">
+                    <li>Bloom — a living Windows desktop</li>
+                    <li>Jen — a voice assistant that listens</li>
+                </ul>
+
+                <p class="diary-signature">— sehaz</p>
+            </div>
         </div>
     </div>
 </div>
+
+<style>
+    .diary-wrapper {
+        display: flex;
+        align-items: stretch;
+        min-height: 420px;
+        max-width: 680px;
+        width: 100%;
+        margin: 0 auto;
+        position: relative;
+        font-family: 'Georgia', 'Times New Roman', serif;
+    }
+
+    /* Spine shadow between pages */
+    .diary-spine {
+        width: 2px;
+        background: linear-gradient(
+            to bottom,
+            transparent,
+            rgba(0,0,0,0.08) 15%,
+            rgba(0,0,0,0.15) 40%,
+            rgba(0,0,0,0.15) 60%,
+            rgba(0,0,0,0.08) 85%,
+            transparent
+        );
+        position: relative;
+        z-index: 2;
+        flex-shrink: 0;
+    }
+    .diary-spine::before {
+        content: '';
+        position: absolute;
+        left: -3px;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(to right, transparent, rgba(0,0,0,0.05));
+    }
+    .diary-spine::after {
+        content: '';
+        position: absolute;
+        right: -3px;
+        top: 0;
+        width: 3px;
+        height: 100%;
+        background: linear-gradient(to left, transparent, rgba(0,0,0,0.05));
+    }
+
+    .diary-pages {
+        display: flex;
+        flex: 1;
+        gap: 0;
+    }
+
+    .diary-page {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* Ruled lines background */
+    .diary-ruled-lines {
+        position: absolute;
+        inset: 0;
+        background-image: repeating-linear-gradient(
+            to bottom,
+            transparent,
+            transparent 27px,
+            rgba(0, 0, 0, 0.055) 27px,
+            rgba(0, 0, 0, 0.055) 28px
+        );
+        background-size: 100% 28px;
+        pointer-events: none;
+    }
+
+    .diary-page-left {
+        padding-right: 20px;
+    }
+
+    .diary-page-right {
+        padding-left: 20px;
+    }
+
+    .diary-page-content {
+        position: relative;
+        z-index: 1;
+        padding-top: 4px;
+    }
+
+    .diary-date {
+        font-size: 11px;
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+        color: #8B0000;
+        opacity: 0.7;
+        margin-bottom: 28px;
+        line-height: 28px;
+    }
+
+    .diary-entry {
+        font-size: 15px;
+        color: #2c2420;
+        line-height: 28px;
+        margin-bottom: 0;
+        font-weight: 400;
+        font-style: normal;
+    }
+
+    .diary-entry em {
+        font-style: italic;
+        color: #1C1917;
+    }
+
+    .diary-label {
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: #8B0000;
+        opacity: 0.65;
+        margin-bottom: 4px;
+        line-height: 28px;
+    }
+
+    .diary-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .diary-list li {
+        font-size: 14px;
+        color: #2c2420;
+        line-height: 28px;
+        padding-left: 14px;
+        position: relative;
+    }
+
+    .diary-list li::before {
+        content: '—';
+        position: absolute;
+        left: 0;
+        color: rgba(0,0,0,0.25);
+        font-size: 12px;
+    }
+
+    .diary-signature {
+        margin-top: 28px;
+        font-size: 15px;
+        font-style: italic;
+        color: #2c2420;
+        opacity: 0.6;
+        line-height: 28px;
+        text-align: right;
+        padding-right: 8px;
+    }
+</style>

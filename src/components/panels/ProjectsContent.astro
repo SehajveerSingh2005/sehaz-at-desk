@@ -2,130 +2,241 @@
 
 ---
 
-<div class="space-y-2">
-    <header class="space-y-4 pb-8 border-b border-black/10">
-        <span
-            class="text-[11px] font-medium tracking-[0.2em] uppercase text-[#8B0000]/80"
-            >Selected Works</span
-        >
-        <h2
-            class="text-[52px] md:text-[64px] font-serif font-normal tracking-normal leading-[1.05] text-[#1C1917]"
-        >
-            Digital Architecture <br /> & Engineering
-        </h2>
+<div class="projects-root">
+    <header class="projects-header">
+        <span class="projects-eyebrow">Selected Works</span>
+        <div class="projects-count">04</div>
     </header>
 
-    <div>
-        <!-- Project 1 -->
-        <article class="group py-8 border-b border-black/8">
-            <div class="flex items-start justify-between mb-3">
-                <h3
-                    class="text-[28px] font-serif font-normal text-[#1C1917] leading-tight"
-                >
-                    The Framed Archive
-                </h3>
+    <div class="projects-list">
+        <!-- Bloom -->
+        <article class="project-item group">
+            <div class="project-top">
+                <div class="project-meta">
+                    <span class="project-index">01</span>
+                    <h3 class="project-name">Bloom</h3>
+                </div>
                 <a
-                    href="https://theframedarchive.com"
+                    href="https://bloom.sehaz.space"
                     target="_blank"
-                    class="text-[12px] uppercase tracking-widest font-medium text-secondary group-hover:text-[#8B0000] inline-flex items-center gap-1.5 transition-colors shrink-0 mt-2 ml-4"
+                    class="project-link"
+                    aria-label="View Bloom"
                 >
-                    View <span
-                        class="transition-transform duration-300 group-hover:translate-x-1 inline-block"
-                        >&rarr;</span
-                    >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12L12 2M12 2H5M12 2V9"/>
+                    </svg>
                 </a>
             </div>
-            <p class="text-[15px] text-secondary leading-relaxed mb-4">
-                A full-scale e-commerce platform for posters. Built with a
-                responsive, premium UI/UX. Managed end-to-end product lifecycle
-                from architecture to CI/CD deployment.
+            <p class="project-desc">
+                A Windows desktop that feels alive. Physics-driven Island at the top of your screen — music visualizer, command center, calendar — and a fully animated Dock replacing the native taskbar.
             </p>
-            <div class="flex gap-2 flex-wrap">
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Next.js</span
-                >
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Firebase</span
-                >
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Tailwind</span
-                >
+            <div class="project-tags">
+                <span class="tag">Tauri</span>
+                <span class="tag">Rust</span>
+                <span class="tag">Bun</span>
             </div>
         </article>
 
-        <!-- Project 2 -->
-        <article class="group py-8 border-b border-black/8">
-            <div class="flex items-start justify-between mb-3">
-                <h3
-                    class="text-[28px] font-serif font-normal text-[#1C1917] leading-tight"
+        <!-- Jen -->
+        <article class="project-item group">
+            <div class="project-top">
+                <div class="project-meta">
+                    <span class="project-index">02</span>
+                    <h3 class="project-name">Jen</h3>
+                </div>
+                <a
+                    href="https://sehajveersingh2005.github.io/jen/"
+                    target="_blank"
+                    class="project-link"
+                    aria-label="View Jen"
                 >
-                    Folia
-                </h3>
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12L12 2M12 2H5M12 2V9"/>
+                    </svg>
+                </a>
+            </div>
+            <p class="project-desc">
+                A minimalist voice-powered assistant for Windows. Lives at the bottom of your screen, listens for your wake word, and controls media, apps, and windows through natural speech.
+            </p>
+            <div class="project-tags">
+                <span class="tag">Tauri v2</span>
+                <span class="tag">React</span>
+                <span class="tag">Rust</span>
+                <span class="tag">Python</span>
+            </div>
+        </article>
+
+        <!-- Folia -->
+        <article class="project-item group">
+            <div class="project-top">
+                <div class="project-meta">
+                    <span class="project-index">03</span>
+                    <h3 class="project-name">Folia</h3>
+                </div>
                 <a
                     href="https://folia-os.vercel.app"
                     target="_blank"
-                    class="text-[12px] uppercase tracking-widest font-medium text-secondary group-hover:text-[#8B0000] inline-flex items-center gap-1.5 transition-colors shrink-0 mt-2 ml-4"
+                    class="project-link"
+                    aria-label="View Folia"
                 >
-                    View <span
-                        class="transition-transform duration-300 group-hover:translate-x-1 inline-block"
-                        >&rarr;</span
-                    >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12L12 2M12 2H5M12 2V9"/>
+                    </svg>
                 </a>
             </div>
-            <p class="text-[15px] text-secondary leading-relaxed mb-4">
-                A "second brain" personal productivity app designed for seamless
-                knowledge organization. Features a visually interactive workflow
-                enabling drag-and-drop note hierarchy.
+            <p class="project-desc">
+                A second-brain productivity app built for seamless knowledge organisation. Drag-and-drop note hierarchy with a visually interactive workflow that makes thinking spatial.
             </p>
-            <div class="flex gap-2 flex-wrap">
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Next.js</span
-                >
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Supabase</span
-                >
+            <div class="project-tags">
+                <span class="tag">Next.js</span>
+                <span class="tag">Supabase</span>
             </div>
         </article>
 
-        <!-- Project 3 -->
-        <article class="group py-8">
-            <div class="flex items-start justify-between mb-3">
-                <h3
-                    class="text-[28px] font-serif font-normal text-[#1C1917] leading-tight"
-                >
-                    The Open Shelf
-                </h3>
+        <!-- The Open Shelf -->
+        <article class="project-item group" style="border-bottom: none;">
+            <div class="project-top">
+                <div class="project-meta">
+                    <span class="project-index">04</span>
+                    <h3 class="project-name">The Open Shelf</h3>
+                </div>
                 <a
                     href="https://the-open-shelf.vercel.app"
                     target="_blank"
-                    class="text-[12px] uppercase tracking-widest font-medium text-secondary group-hover:text-[#8B0000] inline-flex items-center gap-1.5 transition-colors shrink-0 mt-2 ml-4"
+                    class="project-link"
+                    aria-label="View The Open Shelf"
                 >
-                    View <span
-                        class="transition-transform duration-300 group-hover:translate-x-1 inline-block"
-                        >&rarr;</span
-                    >
+                    <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M2 12L12 2M12 2H5M12 2V9"/>
+                    </svg>
                 </a>
             </div>
-            <p class="text-[15px] text-secondary leading-relaxed mb-4">
-                A non-linear reading platform replacing traditional RSS feeds
-                with an infinite spatial canvas. Focused on depth-first
-                consumption and spatial memory.
+            <p class="project-desc">
+                A non-linear reading platform that replaces traditional RSS feeds with an infinite spatial canvas. Built around depth-first consumption and spatial memory.
             </p>
-            <div class="flex gap-2 flex-wrap">
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >React</span
-                >
-                <span
-                    class="px-2.5 py-1 text-[10px] uppercase tracking-wider bg-black/5 text-primary rounded-sm"
-                    >Spatial API</span
-                >
+            <div class="project-tags">
+                <span class="tag">React</span>
+                <span class="tag">Spatial API</span>
             </div>
         </article>
     </div>
 </div>
+
+<style>
+    .projects-root {
+        width: 100%;
+    }
+
+    .projects-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding-bottom: 20px;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        margin-bottom: 4px;
+    }
+
+    .projects-eyebrow {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: rgba(139, 0, 0, 0.75);
+    }
+
+    .projects-count {
+        font-size: 11px;
+        font-weight: 500;
+        letter-spacing: 0.15em;
+        color: rgba(0, 0, 0, 0.2);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .projects-list {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .project-item {
+        padding: 22px 0;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+        transition: background 200ms ease;
+    }
+
+    .project-top {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 10px;
+    }
+
+    .project-meta {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+    }
+
+    .project-index {
+        font-size: 11px;
+        color: rgba(0, 0, 0, 0.25);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: 0.05em;
+        flex-shrink: 0;
+        margin-top: 3px;
+    }
+
+    .project-name {
+        font-size: 22px;
+        font-family: Georgia, 'Times New Roman', serif;
+        font-weight: 400;
+        color: #1C1917;
+        line-height: 1.15;
+        margin: 0;
+    }
+
+    .project-link {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+        color: rgba(0, 0, 0, 0.35);
+        transition: color 250ms ease, border-color 250ms ease, background 250ms ease, transform 250ms ease;
+        flex-shrink: 0;
+        margin-top: 2px;
+    }
+
+    .project-item:hover .project-link {
+        color: #8B0000;
+        border-color: rgba(139, 0, 0, 0.35);
+        background: rgba(139, 0, 0, 0.04);
+        transform: translate(1px, -1px);
+    }
+
+    .project-desc {
+        font-size: 13.5px;
+        color: rgba(0, 0, 0, 0.5);
+        line-height: 1.65;
+        margin: 0 0 12px 0;
+        padding-left: 28px;
+    }
+
+    .project-tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        padding-left: 28px;
+    }
+
+    .tag {
+        padding: 3px 8px;
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        background: rgba(0, 0, 0, 0.04);
+        color: rgba(0, 0, 0, 0.45);
+        border-radius: 2px;
+    }
+</style>
